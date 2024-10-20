@@ -10,23 +10,17 @@ import ProtectedRoute from './components/ProtectedRoute';
 const App = () => {
   const [isAuthenticatedUser, setIsAuthenticatedUser] = useState(null);
 
-  const checkAuthentication = async () => {
-    const authStatus = await authService.isAuthenticated(); // Check auth status
-    setIsAuthenticatedUser(authStatus);
-  };
-
   useEffect(() => {
+    const checkAuthentication = async () => {
+      const authStatus = await authService.isAuthenticated(); // Check auth status
+      setIsAuthenticatedUser(authStatus);
+    };
+
     checkAuthentication();
   }, []);
 
-  // Pass this function to Login and Header to update authentication state immediately
-  const handleLoginSuccess = () => {
-    setIsAuthenticatedUser(true);
-  };
-
-  const handleLogout = () => {
-    setIsAuthenticatedUser(false); // Update state on logout
-  };
+  const handleLoginSuccess = () => setIsAuthenticatedUser(true);
+  const handleLogout = () => setIsAuthenticatedUser(false);
 
   if (isAuthenticatedUser === null) {
     // Return a loading screen while checking authentication status
@@ -39,7 +33,7 @@ const App = () => {
         {isAuthenticatedUser && <Header onLogout={handleLogout} />}
         <main className="max-sm:px-5 px-16 py-6">
           <Routes>
-            <Route path="/" element={isAuthenticatedUser ? <Navigate to="/projects" /> : <Navigate to="/login" />} />
+            <Route path="/" element={<Navigate to={isAuthenticatedUser ? "/projects" : "/login"} />} />
             <Route path="/login" element={isAuthenticatedUser ? <Navigate to="/projects" /> : <Login onLoginSuccess={handleLoginSuccess} />} />
             <Route path="/projects" element={<ProtectedRoute><Projects /></ProtectedRoute>} />
             <Route path="/employees" element={<ProtectedRoute><Employees /></ProtectedRoute>} />
