@@ -47,7 +47,6 @@ const Login = ({ onLoginSuccess }) => {
                         type="text"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        errorMessage={errorMessage}
                     />
                     <InputField
                         label="Password"
