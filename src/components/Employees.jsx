@@ -1,26 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import employeeDatabaseService from '../appwrite/database_service/employee_database_service';
 import CreateEmployee from './CreateEmployee';
+import UpdateEmployee from './UpdateEmployee';
 
 const Employees = () => {
     const [employees, setEmployees] = useState([]);
     const [showCreateEmployee, setShowCreateEmployee] = useState(false);
-    const [loading, setLoading] = useState(true); // Loading state
+    const [showUpdateEmployee, setShowUpdateEmployee] = useState(false);
+    const [currentEmployee, setCurrentEmployee] = useState(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         fetchEmployees();
     }, []);
 
     const fetchEmployees = async () => {
-        setLoading(true); // Set loading to true while fetching
+        setLoading(true);
         try {
             const data = await employeeDatabaseService.getEmployees();
             setEmployees(data);
         } catch (error) {
             console.error("Error fetching employees:", error);
-            // Optionally, handle the error state (e.g., show a message)
         } finally {
-            setLoading(false); // Always set loading to false
+            setLoading(false);
         }
     };
 
@@ -28,11 +30,16 @@ const Employees = () => {
         if (window.confirm("Are you sure you want to delete this employee?")) {
             try {
                 await employeeDatabaseService.deleteEmployee(employeeId);
-                setEmployees((prev) => prev.filter(employee => employee.$id !== employeeId)); // Update state optimally
+                setEmployees((prev) => prev.filter(employee => employee.$id !== employeeId));
             } catch (error) {
                 console.error("Error deleting employee:", error);
             }
         }
+    };
+
+    const handleUpdate = (employee) => {
+        setCurrentEmployee(employee);
+        setShowUpdateEmployee(true);
     };
 
     return (
@@ -56,12 +63,20 @@ const Employees = () => {
                             {employees.map((employee) => (
                                 <li key={employee.$id} className="flex justify-between items-center bg-white p-4 rounded shadow hover:scale-105 transition-all duration-500">
                                     <span>{employee.name}</span>
-                                    <button
-                                        className="bg-red-500 text-white px-3 py-1 rounded"
-                                        onClick={() => handleDelete(employee.$id)}
-                                    >
-                                        Delete
-                                    </button>
+                                    <div>
+                                        <button
+                                            className="bg-blue-500 text-white px-3 py-1 rounded mr-2"
+                                            onClick={() => handleUpdate(employee)} // Open update form
+                                        >
+                                            Update
+                                        </button>
+                                        <button
+                                            className="bg-red-500 text-white px-3 py-1 rounded"
+                                            onClick={() => handleDelete(employee.$id)}
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
                                 </li>
                             ))}
                         </ul>
@@ -75,6 +90,14 @@ const Employees = () => {
                 <CreateEmployee
                     onClose={() => setShowCreateEmployee(false)}
                     onEmployeeCreated={fetchEmployees}
+                />
+            )}
+
+            {showUpdateEmployee && currentEmployee && (
+                <UpdateEmployee
+                    employee={currentEmployee}
+                    onClose={() => setShowUpdateEmployee(false)}
+                    onEmployeeUpdated={fetchEmployees}
                 />
             )}
         </div>

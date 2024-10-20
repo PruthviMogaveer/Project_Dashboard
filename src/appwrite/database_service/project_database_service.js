@@ -107,6 +107,19 @@ export class ProjectDatabaseService {
 
         }
     }
+
+    async updateProject(projectId, updatedData) {
+        try {
+            return await this.databases.updateDocument(
+                conf.appwriteDatabaseID,
+                conf.appwriteProjectsCollectionID,
+                projectId,
+                updatedData
+            )
+        } catch (error) {
+            console.log("Appwrite service :: update project :: error", error)
+        }
+    }
 }
 
 const projectDatabaseService = new ProjectDatabaseService();

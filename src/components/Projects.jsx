@@ -70,7 +70,7 @@ const Projects = () => {
                                             className="bg-green-500 text-white px-3 py-1 max-sm:w-full rounded mr-2"
                                             onClick={() => handleAddEmployee(project)}
                                         >
-                                            Manage Employees
+                                            Manage Project
                                         </button>
                                         <button
                                             className="bg-red-500 text-white max-sm:w-full px-3 py-1 rounded"

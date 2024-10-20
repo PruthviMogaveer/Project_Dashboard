@@ -49,6 +49,20 @@ export class EmployeeDatabaseService {
             console.log("Appwrite service :: deleteEmployees :: error", error)
         }
     }
+
+    async updateEmployee(employeeId, updatedData) {
+        try {
+            return await this.databases.updateDocument(
+                conf.appwriteDatabaseID,
+                conf.appwriteEmployeesCollectionID,
+                employeeId,
+                updatedData
+            )
+        } catch (error) {
+            console.log("Appwrite service :: updateEmployees :: error", error)
+
+        }
+    }
 }
 
 const employeeDatabaseService = new EmployeeDatabaseService();
