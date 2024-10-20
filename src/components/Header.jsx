@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import Logout from './logout';
+import Logout from './Logout';
 import { NavLink } from 'react-router-dom';
 
 // Memoize the Header component to avoid unnecessary re-renders
