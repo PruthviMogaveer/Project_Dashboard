@@ -1,5 +1,5 @@
 import conf from "../../conf/conf";
-import { Client, Databases } from 'appwrite';
+import { Client, Databases, ID } from 'appwrite';
 
 export class EmployeeDatabaseService {
     client = new Client();
@@ -15,21 +15,23 @@ export class EmployeeDatabaseService {
 
     async getEmployees() {
         try {
-            return await this.databases.listDocuments(
+            const response = await this.databases.listDocuments(
                 conf.appwriteDatabaseID,
                 conf.appwriteEmployeesCollectionID
             )
+            return response.documents
         } catch (error) {
             console.log("Appwrite service :: getEmployees :: error", error)
         }
     }
 
-    async createEmployee({ name, email, projects }) {
+    async createEmployee({ name, email }) {
         try {
             return await this.databases.createDocument(
                 conf.appwriteDatabaseID,
                 conf.appwriteEmployeesCollectionID,
-                { name, email, projects }
+                ID.unique(),
+                { name, email }
             )
         } catch (error) {
             console.log("Appwrite service :: createEmployees :: error", error)

@@ -25,7 +25,17 @@ export class AuthService {
         try {
             await this.account.deleteSessions()
         } catch (error) {
-            console.log("Appwriteservice :: logout :: error", error);
+            console.log("Appwrite service :: logout :: error", error);
+        }
+    }
+
+    async isAuthenticated() {
+        try {
+            const session = await this.account.get();
+            return true
+        } catch (error) {
+            console.log("Appwrite service :: isAuthenticated :: error", error);
+            return false
         }
     }
 }

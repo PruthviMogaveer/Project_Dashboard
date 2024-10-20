@@ -1,5 +1,6 @@
+import { json } from "react-router-dom";
 import conf from "../../conf/conf";
-import { Client, Databases } from 'appwrite';
+import { Client, Databases, ID } from 'appwrite';
 
 export class ProjectDatabaseService {
     client = new Client();
@@ -15,21 +16,24 @@ export class ProjectDatabaseService {
 
     async getProjects() {
         try {
-            return await this.databases.listDocuments(
+            const response = await this.databases.listDocuments(
                 conf.appwriteDatabaseID,
                 conf.appwriteProjectsCollectionID
             )
+            return response.documents
         } catch (error) {
             console.log("Appwrite service :: getProjects :: error", error)
         }
     }
 
-    async createProject({ name, desc, employees }) {
+    async createProject({ name, description, employees }) {
         try {
+
             return await this.databases.createDocument(
                 conf.appwriteDatabaseID,
                 conf.appwriteProjectsCollectionID,
-                { name, desc, employees }
+                ID.unique(),
+                { name, description, employees }
             )
         } catch (error) {
             console.log("Appwrite service :: createProject :: error", error)
@@ -66,14 +70,19 @@ export class ProjectDatabaseService {
     // Function to add employee to a project
     async addEmployeeToProject(projectId, employeeId) {
         try {
-            const project = this.getProject(projectId)
-            const updatedEmployees = [...project.employees, employeeId];
-            return await this.databases.updateDocument(
-                conf.appwriteDatabaseID,
-                conf.appwriteProjectsCollectionID,
-                projectId,
-                { employees: updatedEmployees }
-            )
+            const project = await this.getProject(projectId)
+
+            if (!project.employees.includes(employeeId)) {
+                const currentEmployees = project.employees ? project.employees.split(',') : [];
+                const updatedEmployees = [...new Set([...currentEmployees, employeeId])]; // Ensure unique IDs
+                const employeesString = updatedEmployees.join(',');
+                return await this.databases.updateDocument(
+                    conf.appwriteDatabaseID,
+                    conf.appwriteProjectsCollectionID,
+                    projectId,
+                    { employees: employeesString }
+                )
+            }
         } catch (error) {
             console.log("Appwrite service :: addEmployeeToProject :: error", error)
 
@@ -83,13 +92,15 @@ export class ProjectDatabaseService {
     //Remove employee from project
     async removeEmployeeFromProject(projectId, employeeId) {
         try {
-            const project = this.getProject(projectId)
-            const updatedEmployees = project.employees.filter(empId => empId !== employeeId);
+            const project = await this.getProject(projectId)
+            const currentEmployees = project.employees ? project.employees.split(',') : [];
+            const updatedEmployees = currentEmployees.filter(empId => empId !== employeeId);
+            const employeesString = updatedEmployees.join(',');
             return await this.databases.updateDocument(
                 conf.appwriteDatabaseID,
                 conf.appwriteProjectsCollectionID,
                 projectId,
-                { employees: updatedEmployees }
+                { employees: employeesString }
             )
         } catch (error) {
             console.log("Appwrite service :: removeEmployeeFromProject :: error", error)
